@@ -1,7 +1,7 @@
 ## Gelembjuk/Locale
 
 Internationalization support for PHP applications. It is a simple set of classes to manage languages/locales, to translate texts depending on a locale.
-The package contains a trait to include internationalization functions to any classes very easy and with minimu  coding.
+The package contains a trait to include internationalization functions to any classes very easy and with minimum coding.
 
 ### Installation
 Using composer: [gelembjuk/locale](http://packagist.org/packages/gelembjuk/locale) ``` require: {"gelembjuk/locale": "1.*"} ```
