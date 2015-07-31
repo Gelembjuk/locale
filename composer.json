@@ -1,0 +1,17 @@
+{
+    "name": "gelembjuk/locale",
+    "description": "Internationalization support for PHP applications. It is a simple set of classes to manage languages/locales, to translate texts depending on a locale. The package contains a trait to include internationalization functions to any classes very easy and with minimu  coding.",
+    "require": {},
+    "require-dev":{},
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Roman Gelembjuk",
+            "email": "roman@gelembjuk.com"
+        }
+    ],
+    "autoload": {
+        "psr-0": { "Gelembjuk":"src/" }
+    },
+    "minimum-stability": "dev"
+}

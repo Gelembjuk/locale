@@ -1,0 +1,4 @@
+register = Register
+login = Login
+contact = Contatto
+about = file:aboutblock.htm

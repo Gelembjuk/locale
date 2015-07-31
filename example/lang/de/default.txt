@@ -1,0 +1,3 @@
+sitename = Meine Web-Site Name
+welcome = Willkommen
+hello = Hallo,% s willkommen auf unserer Website
