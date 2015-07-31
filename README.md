@@ -74,13 +74,14 @@ Languages manager usage
 ```php
 $langobj = new Gelembjuk\Locale\Languages(array('localespath' => $lang_folder_path));
 
+// list of used languages, used are languages with a folder in $lang_folder_path
 $languages = $langobj->getUsedLanguages();
 
 // print language select form
 
 echo '<form name=\'langform\' method=\'GET\' action="index.php">';
 
-echo $languages->getHTMLSelect(' name="locale" onchange="document.langform.submit()" ',$locale/*current selected locale*/);
+echo $langobj->getHTMLSelect(' name="locale" onchange="document.langform.submit()" ',$locale/*current selected locale*/);
 
 echo '</form>';
 
