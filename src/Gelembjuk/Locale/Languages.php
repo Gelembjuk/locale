@@ -161,6 +161,24 @@ class Languages {
 		return $usedlanguages;
 	}
 	/**
+	 * Return used languages. This are languages with any translation text set
+	 * 
+	 * @return array
+	 */
+	public function getLanguagesFiltered($tag) {
+		$alllanguages = $this->getAllLanguages();
+		
+		$languages = array();
+		
+		foreach ($alllanguages as $code=>$lang) {
+			if (in_array($tag,$lang['tags'])) {
+				$languages[$code] = $lang;
+			}
+		}
+		
+		return $languages;
+	}
+	/**
 	 * Build HTML select consruction with used languages
 	 * Can be used on a web site to show a Language change dropbox
 	 * 

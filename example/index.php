@@ -85,3 +85,14 @@ echo '<hr><form name=\'langform\' method=\'GET\' action="index.php">';
 echo $languages->getHTMLSelect(' name="locale" onchange="document.langform.submit()" ',$locale/*current selected locale*/);
 
 echo '</form>';
+
+// =============================================================
+// output EU languages
+$eulanguages = $languages->getLanguagesFiltered('EU');
+
+echo '<hr><h2>EU Languages</h2><ul>';
+foreach ($eulanguages as $lang) {
+	echo '<li>'.$lang['name'].'<br>';
+}
+
+echo '</ul>';
