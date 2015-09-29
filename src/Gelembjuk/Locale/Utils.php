@@ -16,14 +16,19 @@ namespace Gelembjuk\Locale;
 
 class Utils extends Languages {
 	/**
+	 * Returns translation management object
+	 * 
+	 */
+	protected function getTranslateObject($returnfilename = false) {
+		return new TranslateManagement(array('localespath' => $this->localespath,
+			'returnfilename' => $returnfilename));
+	}
+	/**
 	 * Returns all groups-locale associations where are some data missed comparing to def locale
 	 * 
 	 * @param string $deflocale Default locale to use as a base for comparing
 	 * @param bool $includingmissedindef Defines if to check what is present in other locales and missed in def locale
 	 */
-	protected function getTranslateObject() {
-		return new Translate(array('localespath' => $this->localespath));
-	}
 	public function getAllGrupsWithMisses($deflocale,$includingmissedindef = true) {
 		$result = array();
 
@@ -50,7 +55,16 @@ class Utils extends Languages {
 
 		return $result;
 	}
-
+	/**
+	 * Returns information about difference between same group file in different locales
+	 * an be used to find what is missed in secondary languages files
+	 * 
+	 * @param string $group Translation group
+	 * @param string $locale Locale to compare to default locale
+	 * @param string $deflocale Default locale to use as a base for comparing
+	 * 
+	 * @return array
+	 */
 	public function getDifference($group,$locale,$deflocale) {
 		$translate = $this->getTranslateObject();
 		$translate->setLocale($deflocale);
@@ -61,20 +75,48 @@ class Utils extends Languages {
 		
 		$keys = $translate->getAllKeysForGroup($group);
 		
-		$result['missed'] = array_diff($allkeys,$keys);
-		$result['extra'] = array_diff($keys,$allkeys);
+		$result['missed'] = array_values(array_diff($allkeys,$keys));
+		$result['extra'] = array_values(array_diff($keys,$allkeys));
 		
 		$result['missedcount'] = count($result['missed']);
 		$result['extracount'] = count($result['extra']);
 		
 		$result['total'] = $result['missedcount']+$result['extracount'];
-		
+
 		return $result;
 	}
-
-	public function fixMissedWithDefault($group,$locale,$deflocale) {
+	/**
+	 * Returns text of array of lines to add toa secondary locale group to correct it
+	 * 
+	 * @param string $group Translation group
+	 * @param string $locale Locale to compare to default locale
+	 * @param string $deflocale Default locale to use as a base for comparing
+	 * @param string $mode `empty` or `default`. If empty then generated keys are empty and deflocale value is added as comment
+	 * 
+	 * @return array|string
+	 */
+	public function getMissedKeysTemplate($group,$locale,$deflocale,$mode = 'empty',$returnlines = false, $textlinesplitter = "\n") {
+		$translate = $this->getTranslateObject(true);
+		$translate->setLocale($deflocale);
+		
+		$difference = $this->getDifference($group,$locale,$deflocale);
+		
+		$fixtextlines = array();
+		
+		foreach ($difference['missed'] as $key) {
+			$line = $key.' = ';
+			
+			if ($mode == 'empty') {
+				$line .= '#';
+			}
+			$line .= $translate->getText($key,$group);
+			$fixtextlines[] = $line;
+		}
+		
+		if ($returnlines) {
+			return $fixtextline;
+		}
+		return implode($textlinesplitter,$fixtextlines);
 	}
-
-	public function fixMissedWithEmpty($group,$locale,$deflocale) {
-	}
+	
 }
