@@ -1,3 +1,4 @@
 applicationtitle = Il mio sito Noi
 welcome = Accoglienza
 hello = Ciao,% s benvenuto sul nostro sito web
+notnededkey = non necessaria

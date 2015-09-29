@@ -2,3 +2,4 @@ register = Register
 login = Login
 contact = Contact
 about = file:aboutblock.htm
+moreinfo = file:moreinfoblock.htm

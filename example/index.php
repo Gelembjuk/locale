@@ -96,3 +96,5 @@ foreach ($eulanguages as $lang) {
 }
 
 echo '</ul>';
+
+echo '<p><a href="index_utils.php">Test utils</a></p>';
