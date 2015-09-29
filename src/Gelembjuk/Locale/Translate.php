@@ -99,7 +99,13 @@ class Translate {
 		}
 		
 		if (!is_array($this->cache[$group])) {
-			$this->cache[$group] = $this->loadDataForGroup($group);
+			$groupkeys = $this->loadDataForGroup($group);
+			
+			if ($groupkeys == null) {
+				return $key;
+			}
+			
+			$this->cache[$group] = $groupkeys;
 		}
 		
 		if (isset($this->cache[$group][$key])) {
@@ -123,5 +129,58 @@ class Translate {
 		
 		return $key;
 	}
-	
+	/**
+	 * Loads data (keys,values) for a group from file
+	 * 
+	 * @param string $group Group name
+	 * 
+	 * @return array
+	 */
+	protected function loadDataForGroup($group, $includeemptykeys = false) {
+		// load strings to cache
+		$file_path = $this->localespath.$this->locale.'/';
+		
+		if ($group != '') {
+			$file_path .= $group;
+		} else {
+			$file_path .= 'default';
+		}
+		
+		$file_path .= '.txt';
+		
+		if (!file_exists($file_path)) {	
+			// translation file not found
+			return null;
+		}
+		
+		$lines = @file_get_contents($file_path);
+		
+		if ($lines == '') {
+			return null;
+		}
+		
+		$lines = preg_split('!\\r?\\n!', $lines);
+		$lines = array_map('trim', $lines);
+		
+		$data = array();
+		
+		foreach($lines as $line) {
+			if (strpos($line,'#') !== false) {
+				// remove everything after #
+				$line = substr($line,0,strpos($line,'#'));
+			}
+			list($k, $value) = explode('=', $line, 2);
+			$k = trim($k);
+			$value = trim($value);
+			
+			if (strpos($k,'#') === 0 || $k == '' || $value == '' && !$includeemptykeys) {
+				// comment or empty line
+				continue;
+			}
+			
+			$data[$k] = $value;
+		}
+		
+		return $data;
+	}
 }

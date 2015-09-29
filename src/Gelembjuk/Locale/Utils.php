@@ -73,7 +73,14 @@ class Utils extends Languages {
 		
 		$translate->setLocale($locale);
 		
-		$keys = $translate->getAllKeysForGroup($group);
+		$result['groupmissed'] = false;
+		
+		try {
+			$keys = $translate->getAllKeysForGroup($group);
+		} catch (\Exception $e) {
+			$result['groupmissed'] = true;
+			$keys = array();
+		}
 		
 		$result['missed'] = array_values(array_diff($allkeys,$keys));
 		$result['extra'] = array_values(array_diff($keys,$allkeys));
