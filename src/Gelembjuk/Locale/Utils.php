@@ -44,7 +44,7 @@ class Utils extends Languages {
 				
 				$difference = $this->getDifference($group,$lang,$deflocale);
 				
-				if ($difference['total'] > 0) {
+				if ($difference['missedcount'] > 0) {
 					if (!is_array($result[$lang])) {
 						$result[$lang] = array();
 					}
@@ -125,5 +125,33 @@ class Utils extends Languages {
 		}
 		return implode($textlinesplitter,$fixtextlines);
 	}
-	
+	/**
+	 * Returns text of array of lines to add toa secondary locale group to correct it
+	 * 
+	 * @param string $group Translation group
+	 * @param string $locale Locale to compare to default locale
+	 * @param string $deflocale Default locale to use as a base for comparing
+	 * @param string $mode `empty` or `default`. If empty then generated keys are empty and deflocale value is added as comment
+	 * 
+	 * @return array|string
+	 */
+	public function fixMissedKeysFromTemplate($group,$locale,$deflocale,$mode = 'empty',$textlinesplitter = "\n") {
+		$text = $this->getMissedKeysTemplate($group,$locale,$deflocale,$mode,false, $textlinesplitter);
+		
+		$translate = $this->getTranslateObject();
+		
+		$groupfile = $translate->getGroupFile($group,$locale);
+		
+		$groupfilecontents = '';
+		
+		if (file_exists($groupfile)) {
+			$groupfilecontents = @file_get_contents($groupfile);
+		}
+		
+		$groupfilecontents .= $textlinesplitter . $text;
+		
+		file_put_contents($groupfile,$groupfilecontents);
+		
+		return true;
+	}
 }

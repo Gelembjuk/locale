@@ -138,15 +138,7 @@ class Translate {
 	 */
 	protected function loadDataForGroup($group, $includeemptykeys = false) {
 		// load strings to cache
-		$file_path = $this->localespath.$this->locale.'/';
-		
-		if ($group != '') {
-			$file_path .= $group;
-		} else {
-			$file_path .= 'default';
-		}
-		
-		$file_path .= '.txt';
+		$file_path = $this->getGroupFile($group);
 		
 		if (!file_exists($file_path)) {	
 			// translation file not found
@@ -182,5 +174,23 @@ class Translate {
 		}
 		
 		return $data;
+	}
+	public function getGroupFile($group,$locale = '') {
+		
+		if ($locale == '') {
+			$locale = $this->locale;
+		}
+		
+		$file_path = $this->localespath.$locale.'/';
+		
+		if ($group != '') {
+			$file_path .= $group;
+		} else {
+			$file_path .= 'default';
+		}
+		
+		$file_path .= '.txt';
+		
+		return $file_path;
 	}
 }
