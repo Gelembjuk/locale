@@ -102,7 +102,7 @@ class Utils extends Languages {
 	 * 
 	 * @return array|string
 	 */
-	public function getMissedKeysTemplate($group,$locale,$deflocale,$mode = 'empty',$returnlines = false, $textlinesplitter = "\n") {
+	public function getMissedKeysTemplate($group,$locale,$deflocale,$mode = 'empty',$returntype = 'text', $textlinesplitter = "\n") {
 		$translate = $this->getTranslateObject(true);
 		$translate->setLocale($deflocale);
 		
@@ -116,27 +116,33 @@ class Utils extends Languages {
 			if ($mode == 'empty') {
 				$line .= '#';
 			}
-			$line .= $translate->getText($key,$group);
-			$fixtextlines[] = $line;
+			$defvalue = $translate->getText($key,$group);
+			$line .= $defvalue;
+			
+			if ($returntype == 'hash') {
+				$fixtextlines[$key] = $defvalue;
+			} else {
+				$fixtextlines[] = $line;
+			}
 		}
 		
-		if ($returnlines) {
+		if ($returntype == 'lines' || $returntype == 'hash') {
 			return $fixtextline;
 		}
 		return implode($textlinesplitter,$fixtextlines);
 	}
 	/**
-	 * Returns text of array of lines to add toa secondary locale group to correct it
+	 * Fixes a group by adding all missed keys with empty values or def locale values 
 	 * 
 	 * @param string $group Translation group
 	 * @param string $locale Locale to compare to default locale
 	 * @param string $deflocale Default locale to use as a base for comparing
 	 * @param string $mode `empty` or `default`. If empty then generated keys are empty and deflocale value is added as comment
 	 * 
-	 * @return array|string
+	 * @return bool
 	 */
 	public function fixMissedKeysFromTemplate($group,$locale,$deflocale,$mode = 'empty',$textlinesplitter = "\n") {
-		$text = $this->getMissedKeysTemplate($group,$locale,$deflocale,$mode,false, $textlinesplitter);
+		$text = $this->getMissedKeysTemplate($group,$locale,$deflocale,$mode,'text', $textlinesplitter);
 		
 		$translate = $this->getTranslateObject();
 		
@@ -149,6 +155,99 @@ class Utils extends Languages {
 		}
 		
 		$groupfilecontents .= $textlinesplitter . $text;
+		
+		file_put_contents($groupfile,$groupfilecontents);
+		
+		return true;
+	}
+	/**
+	 * Returns all empty keys from a group and associated values from def locale group
+	 * 
+	 * @param string $group Translation group
+	 * @param string $locale Locale to compare to default locale
+	 * @param string $deflocale Default locale to use as a base for comparing
+	 * @param bool $skipfiles If to skip keys pointing to files with a text
+	 * 
+	 * @return array|string
+	 */
+	public function getEmptyKeysWithDefValues($group,$locale,$deflocale,$skipfiles = true) {
+		$translate = $this->getTranslateObject(true);
+		$translate->setLocale($deflocale);
+		
+		$allkeys = $translate->getAllKeysForGroup($group);
+		$alltranslates = $translate->getDataForGroup($group);
+		
+		$translate->setLocale($locale);
+		
+		try {
+			$keys = $translate->getAllKeysForGroup($group);
+			$translates = $translate->getDataForGroup($group);
+		} catch (\Exception $e) {
+			$keys = array();
+			$translates = array();
+		}
+		
+		$missed = array_values(array_diff($allkeys,$keys));
+		
+		$result = array();
+		
+		foreach ($translates as $key => $value) {
+			if ($value == '') {
+				$missed[] = $key;
+			}
+		}
+		
+		foreach ($missed as $key) {
+			$result[$key] = $alltranslates[$key];
+			
+			if ($result[$key] == '') {
+				$result[$key] = '*';
+			} elseif (strpos($result[$key],'file:') === 0 && $skipfiles) {
+				unset($result[$key]);
+			}
+		}
+
+		return $result;
+	}
+	/**
+	 * Receives a group of values as a list and assigns to missed keys in a group of locale.
+	 * It can be used to quick translate of values as text file with a value per line.
+	 * 
+	 * @param string $group Translation group
+	 * @param string $locale Locale to compare to default locale
+	 * @param string $deflocale Default locale to use as a base for comparing
+	 * @param bool $skipfiles If to skip keys pointing to files with a text
+	 * 
+	 * @return bool
+	 */
+	public function fixMissedKeysFromList($lines,$group,$locale,$deflocale,$skipfiles = true, $textlinesplitter = "\n") {
+		$list = $this->getEmptyKeysWithDefValues($group,$locale,$deflocale,$skipfiles);
+		
+		if (count($list) != count($lines)) {
+			throw new \Exception(sprintf('Wrong count of input lines. %d vs %d',count($list),count($lines)));
+		}
+		
+		$translate = $this->getTranslateObject(true);
+		
+		$translate->setLocale($locale);
+		
+		try {
+			$translates = $translate->getDataForGroup($group);
+		} catch (\Exception $e) {
+			$translates = array();
+		}
+		// assign new values and keys
+		foreach ($list as $key => $value) {
+			$value = array_shift($lines);
+			
+			$translates[$key] = $value;
+		}
+		
+		$groupfile = $translate->getGroupFile($group,$locale);
+		
+		array_walk($translates, function(&$value, $key) { $value = "$key = $value"; });
+		
+		$groupfilecontents .= implode($textlinesplitter,$translates).$textlinesplitter;
 		
 		file_put_contents($groupfile,$groupfilecontents);
 		

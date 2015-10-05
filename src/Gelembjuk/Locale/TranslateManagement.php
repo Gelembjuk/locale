@@ -87,12 +87,12 @@ class TranslateManagement extends Translate {
 	 * 
 	 * @return array
 	 */
-	public function getDataForGroup($group) {
+	public function getDataForGroup($group, $includeemptykeys = true) {
 		if ($this->locale == '') {
 			throw new \Exception('Locale is not set');
 		}
 		
-		$groupkeys = $this->loadDataForGroup($group,true);
+		$groupkeys = $this->loadDataForGroup($group,$includeemptykeys);
 		
 		if (!$groupkeys) {
 			throw new \Exception('Group is not found');
