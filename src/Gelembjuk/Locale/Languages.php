@@ -196,6 +196,20 @@ class Languages {
 		
 		return $languages;
 	}
+	
+	/*
+	* Reformat list of languages as a hash. Input array must be result of one of above functions
+	* @return array
+	*/
+	public function getLanguagesAsHash($langlist,$name = true) {
+		$hash = array();
+		
+		foreach ($langlist as $lang) {
+			$hash[$lang['code']] = ($name)?$lang['name']:$lang['origname'];
+		}
+		
+		return $hash;
+	}
 	/**
 	 * Build HTML select consruction with used languages
 	 * Can be used on a web site to show a Language change dropbox
