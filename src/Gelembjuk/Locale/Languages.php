@@ -179,6 +179,24 @@ class Languages {
 		return $languages;
 	}
 	/**
+	 * Return languages listed in the argument array. Is used for case when it is needed to get list of specified languages
+	 * 
+	 * @return array
+	 */
+	public function getLanguagesFromList($list) {
+		$alllanguages = $this->getAllLanguages();
+		
+		$languages = array();
+		
+		foreach ($alllanguages as $code=>$lang) {
+			if (in_array($code,$list)) {
+				$languages[$code] = $lang;
+			}
+		}
+		
+		return $languages;
+	}
+	/**
 	 * Build HTML select consruction with used languages
 	 * Can be used on a web site to show a Language change dropbox
 	 * 

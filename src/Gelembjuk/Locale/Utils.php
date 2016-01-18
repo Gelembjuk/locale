@@ -19,7 +19,7 @@ class Utils extends Languages {
 	 * Returns translation management object
 	 * 
 	 */
-	protected function getTranslateObject($returnfilename = false) {
+	public function getTranslateObject($returnfilename = false) {
 		return new TranslateManagement(array('localespath' => $this->localespath,
 			'returnfilename' => $returnfilename));
 	}
