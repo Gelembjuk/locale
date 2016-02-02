@@ -68,6 +68,10 @@ class Translate {
 		if ($options['returnfilename'] != '') {
 			$this->returnfilename = $options['returnfilename'];
 		}
+		
+		if ($this->localespath != '' && substr($this->localespath,-1) != '/') {
+			$this->localespath .= '/';
+		}
 	}
 	/**
 	 * Set locale
