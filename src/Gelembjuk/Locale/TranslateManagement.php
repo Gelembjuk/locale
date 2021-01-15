@@ -15,6 +15,15 @@
 namespace Gelembjuk\Locale;
 
 class TranslateManagement extends Translate {
+    public function checkGroupExists($group)
+    {
+        $file_path = $this->getGroupFile($group);
+		
+		if (!file_exists($file_path)) {	
+			return false;
+		}
+		return true;
+    }
 	/**
 	 * Check if a key exists for a group. Is used for translations management
 	 * 

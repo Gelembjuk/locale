@@ -161,6 +161,28 @@ class Utils extends Languages {
 		return true;
 	}
 	/**
+	 * Saves the list of key=>values to the group file. Fully overwrites
+	 * 
+	 * @param string $group Translation group
+	 * @param string $locale Locale to compare to default locale
+	 * @param array $data Translation data - key,values
+	 * @param string textlinesplitter Lien break symbol
+	 * 
+	 * @return array|string
+	 */
+	public function saveGroupFile($group,$locale,$data,$textlinesplitter = "\n")
+	{
+        $translate = $this->getTranslateObject();
+		
+		$groupfile = $translate->getGroupFile($group,$locale);
+		
+		array_walk($data, function(&$value, $key) { $value = "$key = $value"; });
+		
+		$groupfilecontents .= implode($textlinesplitter,$data).$textlinesplitter;
+
+		file_put_contents($groupfile,$groupfilecontents);
+	}
+	/**
 	 * Returns all empty keys from a group and associated values from def locale group
 	 * 
 	 * @param string $group Translation group
