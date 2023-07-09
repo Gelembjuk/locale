@@ -59,18 +59,16 @@ class Translate {
 	public function __construct($options = array()) {
 		$this->cache = array();
 
-		if ($options['locale'] != '') {
-			$this->setLocale($options['locale']);
-		}
-		if ($options['localespath'] != '') {
-			$this->localespath = $options['localespath'];
-		}
-		if ($options['returnfilename'] != '') {
-			$this->returnfilename = $options['returnfilename'];
-		}
-		
-		if ($this->localespath != '' && substr($this->localespath,-1) != '/') {
-			$this->localespath .= '/';
+		if (is_array($options)) {
+			if (($options['locale'] ?? '' ) != '') {
+				$this->setLocale($options['locale']);
+			}
+			if (($options['localespath'] ?? '') != '') {
+				$this->localespath = $options['localespath'];
+			}
+			if (($options['returnfilename'] ?? '') != '') {
+				$this->returnfilename = $options['returnfilename'];
+			}
 		}
 	}
 	/**
