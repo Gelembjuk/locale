@@ -164,6 +164,11 @@ class Translate {
 				$line = substr($line,0,strpos($line,'#'));
 			}
 			list($k, $value) = explode('=', $line, 2);
+			
+			if ($value === null) {
+                               $value = '';
+                        }
+
 			$k = trim($k);
 			$value = trim($value);
 			
