@@ -170,7 +170,7 @@ class Translate {
                         }
 
 			$k = trim($k);
-			$value = trim($value);
+			$value = trim($value ?? "");
 			
 			if (strpos($k,'#') === 0 || $k == '' || $value == '' && !$includeemptykeys) {
 				// comment or empty line
