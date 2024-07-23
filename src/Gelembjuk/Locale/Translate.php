@@ -100,7 +100,7 @@ class Translate {
 			return $key;
 		}
 		
-		if (!is_array($this->cache[$group])) {
+		if (!is_array($this->cache[$group] ?? null)) {
 			$groupkeys = $this->loadDataForGroup($group);
 			
 			if ($groupkeys == null) {
@@ -163,14 +163,15 @@ class Translate {
 				// remove everything after #
 				$line = substr($line,0,strpos($line,'#'));
 			}
-			list($k, $value) = explode('=', $line, 2);
+			if (strpos($line,'=') > 0 && strpos($line,'=') < strlen($line)-1) {
+				list($k, $value) = explode('=', $line, 2);	
+			} else {
+				$k = $line;
+				$value = '';
+			}
 			
-			if ($value === null) {
-                               $value = '';
-                        }
-
 			$k = trim($k);
-			$value = trim($value ?? "");
+			$value = trim($value);
 			
 			if (strpos($k,'#') === 0 || $k == '' || $value == '' && !$includeemptykeys) {
 				// comment or empty line
