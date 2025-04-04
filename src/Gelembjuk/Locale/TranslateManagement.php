@@ -33,7 +33,8 @@ class TranslateManagement extends Translate {
 	 * 
 	 * @return bool
 	 */
-	public function checkKeyExists($key,$group,$allowempty = false) {
+	public function checkKeyExists($key,$group,$allowempty = false) 
+	{
 		if (!$this->locale || $this->locale == '') {
 			return false;
 		}

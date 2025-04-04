@@ -35,16 +35,12 @@ trait GetTextTrait {
 	 * 
 	 * @param string $key Key of text to translate
 	 * @param string $group Group of keys
-	 * @param string $p1 Variable 1 to insert in a text if a value fo a key is formatted string
-	 * @param string $p2 Variable 2
-	 * @param string $p3 Variable 3
-	 * @param string $p4 Variable 4
-	 * @param string $p5 Variable 5
 	 * 
 	 * @return string
 	 */
-	protected function _($key,$group='', $p1 = '', $p2 = '', $p3 = '', $p4 = '', $p5 = '') {
-		return $this->getText($key,$group, $p1, $p2, $p3, $p4, $p5);
+	protected function _($key,$group='', ...$params) 
+	{
+		return $this->getText($key,$group, ...$params);
 	}
 	/**
 	 * Returns a text by a key/group and current locale.
@@ -52,22 +48,19 @@ trait GetTextTrait {
 	 * 
 	 * @param string $key Key of text to translate
 	 * @param string $group Group of keys
-	 * @param string $p1 Variable 1 to insert in a text if a value fo a key is formatted string
-	 * @param string $p2 Variable 2
-	 * @param string $p3 Variable 3
-	 * @param string $p4 Variable 4
-	 * @param string $p5 Variable 5
+	 * @param string $params Parameters to insert in a text if a value fo a key is formatted string
 	 * 
 	 * @return string
 	 */
-	public function getText($key,$group = '', $p1 = '', $p2 = '', $p3 = '', $p4 = '', $p5 = '') {
+	public function getText($key,$group = '', ...$params) 
+	{
 		
 		if (is_object($this->translation)) {
-			return $this->translation->getText($key,$group,$p1,$p2,$p3,$p4,$p5);
+			return $this->translation->getText($key,$group, ...$params);
 		}
 		
-		if (property_exists($this,'application') && is_object($this->application)) {
-			return $this->application->getText($key,$group, $p1, $p2, $p3, $p4, $p5);
+		if (property_exists($this,'context') && is_object($this->context) && method_exists($this->context,'getText')) {
+			return $this->context->getText($key,$group, ...$params);
 		}
 		
 		return $key;
@@ -77,7 +70,8 @@ trait GetTextTrait {
 	 * 
 	 * @return string
 	 */
-	public function getLocale() {
+	public function getLocale() 
+	{
 		return $this->locale;
 	}
 	/**
@@ -85,7 +79,8 @@ trait GetTextTrait {
 	 * 
 	 * @param string $locale
 	 */
-	public function setLocale($locale) {
+	public function setLocale($locale) 
+	{
 		$this->locale = $locale;
 		
 		if ($this->checkTranslateObjectIsSet()) {
@@ -97,7 +92,8 @@ trait GetTextTrait {
 	 * 
 	 * @param Gelembjuk\Locale\Translate $translation
 	 */
-	public function setTranslation($translation) {
+	public function setTranslation(Translate $translation) 
+	{
 		$this->translation = $translation;
 	}
 	/**
@@ -105,15 +101,17 @@ trait GetTextTrait {
 	 * 
 	 * @param array $options Options for Gelembjuk\Locale\Translate class object
 	 */
-	protected function initTranslateObject($options) {
-		$this->translation = new \Gelembjuk\Locale\Translate($options);
+	protected function initTranslateObject(array $options) 
+	{
+		$this->translation = new Translate($options);
 	}
 	/**
 	 * Check if translation object exists in a class
 	 * 
 	 * @return boolean
 	 */
-	protected function checkTranslateObjectIsSet() {
+	protected function checkTranslateObjectIsSet() 
+	{
 		return is_object($this->translation);
 	}
 }

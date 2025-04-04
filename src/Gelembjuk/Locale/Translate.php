@@ -16,7 +16,7 @@
 * @category   Localization
 * @package    Gelembjuk/Locale
 * @copyright  Copyright (c) 2015 Roman Gelembjuk. (http://gelembjuk.com)
-* @version    1.0
+* @version    1.2
 * @link       https://github.com/Gelembjuk/locale
 */
 
@@ -28,19 +28,19 @@ class Translate {
 	 * 
 	 * @val string
 	 */
-	protected $localespath;
+	protected string $localespath;
 	/**
 	 * Current locale
 	 * 
 	 * @var string
 	 */
-	protected $locale;
+	protected string $locale;
 	/**
 	 * Internal data cache to speed up
 	 * 
 	 * @var array
 	 */
-	protected $cache;
+	protected array $cache = [];
 	/**
 	 * Marker for a mode to return big texts file name
 	 * instead of file contents. 
@@ -49,35 +49,45 @@ class Translate {
 	 * 
 	 * @var string
 	 */
-	protected $returnfilename = false;
+	protected bool $returnfilename;
 	
 	/**
 	 * Constructor. Initializes a translation object
 	 * 
 	 * @param array $options Settings
 	 */
-	public function __construct($options = array()) {
-		$this->cache = array();
+	public function __construct(string $localespath = '', string $locale = '', bool $returnfilename = false) 
+	{
+		$this->cache = [];
 
-		if (is_array($options)) {
-			if (($options['locale'] ?? '' ) != '') {
-				$this->setLocale($options['locale']);
-			}
-			if (($options['localespath'] ?? '') != '') {
-				$this->localespath = $options['localespath'];
-			}
-			if (($options['returnfilename'] ?? '') != '') {
-				$this->returnfilename = $options['returnfilename'];
-			}
-		}
+		$this->localespath = $localespath;
+		$this->locale = $locale;
+		$this->returnfilename = $returnfilename;
+	}
+
+	public function withLocalePath(string $path)
+	{
+		$this->localespath = $path;
+		return $this;
+	}
+	public function withLocale(string $locale)
+	{
+		$this->locale = $locale;
+		return $this;
+	}
+	public function doReturnFileName()
+	{
+		$this->returnfilename = true;
+		return $this;
 	}
 	/**
 	 * Set locale
 	 * 
 	 * @param string $locale
 	 */
-	public function setLocale($locale) {
-		$this->cache = array();
+	public function setLocale($locale) 
+	{
+		$this->cache = [];
 		$this->locale = $locale;
 	}
 	/**
@@ -93,9 +103,10 @@ class Translate {
 	 * 
 	 * @return string
 	 */
-	public function getText($key,$group='', $p1 = '', $p2 = '', $p3 = '', $p4 = '', $p5 = '') {
+	public function getText($key, $group = '', ...$params) : string
+	{
 		
-		if (!$this->locale || $this->locale == '') {
+		if (empty($this->locale)) {
 			// if locale is not set then can not find something, so just return a text
 			return $key;
 		}
@@ -110,26 +121,31 @@ class Translate {
 			$this->cache[$group] = $groupkeys;
 		}
 		
-		if (isset($this->cache[$group][$key])) {
-			// check if data are in a file
-			if (strpos($this->cache[$group][$key],'file:') === 0 && !$this->returnfilename) {
-				$filname = substr($this->cache[$group][$key],5);
-				$file_path = $this->localespath.$this->locale.'/files/'.$filname;
-				
-				if (@file_exists($file_path)) {
-					$contents = @file_get_contents($file_path);
-					// contents also can have some formatting to insert arguments
-					if ($contents != '') {
-						return sprintf($contents,$p1,$p2,$p3,$p4,$p5);
-					}
-					
-					return '';
-				}
-			}
-			return sprintf($this->cache[$group][$key],$p1,$p2,$p3,$p4,$p5);
+		if (!isset($this->cache[$group][$key])) {
+			// key not found
+			return $key;
 		}
-		
-		return $key;
+		// check if data are in a file
+		if (strpos($this->cache[$group][$key],'file:') === 0 && !$this->returnfilename) {
+			$filname = substr($this->cache[$group][$key],5);
+			$file_path = $this->localespath.$this->locale.'/files/'.$filname;
+			
+			$contents = '';
+
+			try {
+				if (@file_exists($file_path)) {
+					$contents = file_get_contents($file_path);
+
+					if (empty($contents)) {
+						return $key;
+					}
+					return sprintf($contents, ...$params);
+				}
+			} catch (\Throwable $e) {
+				return $key;
+			}
+		}
+		return sprintf($this->cache[$group][$key], ...$params);
 	}
 	/**
 	 * Loads data (keys,values) for a group from file
@@ -138,7 +154,8 @@ class Translate {
 	 * 
 	 * @return array
 	 */
-	protected function loadDataForGroup($group, $includeemptykeys = false) {
+	protected function loadDataForGroup($group, $includeemptykeys = false) 
+	{
 		// load strings to cache
 		$file_path = $this->getGroupFile($group);
 		
@@ -147,16 +164,22 @@ class Translate {
 			return null;
 		}
 		
-		$lines = @file_get_contents($file_path);
-		
-		if ($lines == '') {
+		$lines = '';
+
+		try {
+			$lines = @file_get_contents($file_path);
+
+			if ($lines == '') {
+				return null;
+			}
+		} catch (\Throwable $e) {
 			return null;
 		}
 		
 		$lines = preg_split('!\\r?\\n!', $lines);
 		$lines = array_map('trim', $lines);
 		
-		$data = array();
+		$data = [];
 		
 		foreach($lines as $line) {
 			if (strpos($line,'#') !== false) {
@@ -183,8 +206,8 @@ class Translate {
 		
 		return $data;
 	}
-	public function getGroupFile($group,$locale = '') {
-		
+	public function getGroupFile($group,$locale = '') 
+	{	
 		if ($locale == '') {
 			$locale = $this->locale;
 		}

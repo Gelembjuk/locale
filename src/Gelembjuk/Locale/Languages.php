@@ -42,10 +42,11 @@ class Languages {
 	 * 
 	 * @param array $options array of options
 	 */
-	public function __construct($options = array()) {
+	public function __construct($options = []) 
+	{
 		$this->alllanguages = null;
 		
-		if ($options['localespath'] != '') {
+		if (!empty($options['localespath'])) {
 			$this->localespath = $options['localespath'];
 		}
 		
@@ -65,7 +66,8 @@ class Languages {
 	 * 
 	 * @return array
 	 */
-	public function getAllLanguages() {
+	public function getAllLanguages() 
+	{
 		
 		if (is_array($this->alllanguages)) {
 			return $this->alllanguages;
@@ -84,21 +86,21 @@ class Languages {
 			if ($this->errorondatamissed) {
 				throw new \Exception('No languages file found');
 			}
-			return array();
+			return [];
 		}
 		
 		// load a file
-		$list = @file_get_contents($langfile);
+		$list = file_get_contents($langfile);
 		
 		if (!$list) {
 			// if somethign went wrong throw error or return empty array
 			if ($this->errorondatamissed) {
 				throw new \Exception('Can not load languages list');
 			}
-			return array();
+			return [];
 		}
 		
-		$languages = array();
+		$languages = [];
 		
 		foreach (preg_split('!\\r?\\n!',$list) as $line) {
 			
@@ -129,13 +131,13 @@ class Languages {
 			
 			$hasflag = file_exists($flagfile);
 			
-			$languages[$code] = array(
+			$languages[$code] = [
 				'code'=>$code,
 				'name'=>$name,
 				'origname'=>$origname,
 				'hasflag'=>$hasflag,
 				'tags' => $tags
-				);
+			];
 		}
 		return $languages;
 	}
@@ -144,7 +146,8 @@ class Languages {
 	 * 
 	 * @return array
 	 */
-	public function getUsedLanguages() {
+	public function getUsedLanguages() 
+	{
 		$alllanguages = $this->getAllLanguages();
 		
 		$usedlanguages = array();
@@ -165,7 +168,8 @@ class Languages {
 	 * 
 	 * @return array
 	 */
-	public function getLanguagesFiltered($tag) {
+	public function getLanguagesFiltered($tag) 
+	{
 		$alllanguages = $this->getAllLanguages();
 		
 		$languages = array();
@@ -183,7 +187,8 @@ class Languages {
 	 * 
 	 * @return array
 	 */
-	public function getLanguagesFromList($list) {
+	public function getLanguagesFromList($list) 
+	{
 		$alllanguages = $this->getAllLanguages();
 		
 		$languages = array();
@@ -201,7 +206,8 @@ class Languages {
 	* Reformat list of languages as a hash. Input array must be result of one of above functions
 	* @return array
 	*/
-	public function getLanguagesAsHash($langlist,$name = true) {
+	public function getLanguagesAsHash($langlist,$name = true) 
+	{
 		$hash = array();
 		
 		foreach ($langlist as $lang) {
@@ -220,7 +226,8 @@ class Languages {
 	 * 
 	 * @return string
 	 */
-	public function getHTMLSelect($attributes = '',$currentlang = '',$orignames = false) {
+	public function getHTMLSelect($attributes = '',$currentlang = '',$orignames = false) 
+	{
 		$html = '<select '.$attributes.'>';
 		
 		foreach ($this->getUsedLanguages() as $code=>$lang) {
