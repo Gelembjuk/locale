@@ -22,7 +22,7 @@
 
 namespace Gelembjuk\Locale;
 
-class Translate {
+class Translate extends \Gelembjuk\EasyApp\Resources\Localization\Localization{
 	/**
 	 * Path to a languages/locales folder
 	 * 
@@ -70,11 +70,6 @@ class Translate {
 		$this->localespath = $path;
 		return $this;
 	}
-	public function withLocale(string $locale)
-	{
-		$this->locale = $locale;
-		return $this;
-	}
 	public function doReturnFileName()
 	{
 		$this->returnfilename = true;
@@ -88,7 +83,7 @@ class Translate {
 	public function setLocale($locale) 
 	{
 		$this->cache = [];
-		$this->locale = $locale;
+		parent::setLocale($locale);
 	}
 	/**
 	 * Returns text by a key/group and inserts data if it is formatted string
